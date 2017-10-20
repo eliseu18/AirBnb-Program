@@ -38,6 +38,11 @@ public class Distrito {
 		this.bairros.add(bairro);
 	}
 	
+	/*Carrega as informações do distrito e chama o metodo do bairro para carrega-lo
+	Aqui voce irá notar que o carregamento esta sendo feito em cascata.
+	No main só é chamada essa função, apartir dela é chamada a funcão bairro e 
+	da função carregarBairro é chamada a função carregarEstabelecimento e carregarAnfitrião
+	*/
 	public void carregarDistrito(String[] coluna) {
 		Bairro atual = getBairroNome(coluna[5]);
 		
