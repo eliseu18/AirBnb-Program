@@ -26,18 +26,18 @@ import com.restfb.DefaultFacebookClient;
 
 public class ProgramaAir implements ActionListener{
 
-	JLabel texto;
-	DefaultCategoryDataset graphBanco;
-	Distrito victoria;
-	FileInputStream Chart;
-	File Chart2;
+	JLabel texto; //Variavel que define o texto que vai ser apresentado a cada acao.
+	DefaultCategoryDataset graphBanco; //variavel para o banco de dados
+	Distrito victoria; 
+	FileInputStream Chart; //variavel para referenciar imagem para o facebook
+	File Chart2; //variavel para referenciar a imagem para o twitter
 	
 	public ProgramaAir(Distrito victoria){
 		
-	//Cria interface botıes e mensagens
+	//Cria interface bot√µes e mensagens
 	JFrame jfrm = new JFrame("Gerador de graficos com dados do bairro Victoria, BC, Canada");
 	this.texto = new JLabel("");
-	JLabel cabecalho = new JLabel("Escolha o tipo de gr·fico a ser gerado.");
+	JLabel cabecalho = new JLabel("Escolha o tipo de gr√°fico a ser gerado.");
 	JButton botaoGraphBarraPreco = new JButton("preco");
 	JButton botaoGraphBarraDisponibilidade = new JButton("disponibilidade");
 	JButton botaoGraphBarraEstabelecimentos = new JButton("estabelecimentos");
@@ -48,7 +48,7 @@ public class ProgramaAir implements ActionListener{
 	Chart2 = null;
 	this.victoria = victoria;
 	
-	//Configura interface e botıes
+	//Configura interface e bot√µes
 	jfrm.setSize(300,400);
 	jfrm.setLayout(new FlowLayout());
 	jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,7 +58,7 @@ public class ProgramaAir implements ActionListener{
 	compartilharFace.addActionListener(this);
 	compartilharTwitter.addActionListener(this);
 	
-	//Adiciona os botıes e a mensagem a interface
+	//Adiciona os bot√µes e a mensagem a interface
 	jfrm.add(cabecalho);
 	jfrm.add(texto);
 	jfrm.add(botaoGraphBarraPreco);
@@ -71,11 +71,12 @@ public class ProgramaAir implements ActionListener{
 	jfrm.setVisible(true);
 	}
 	
+	//Recebe o evento de clicar no bot√£o e definie sua fun√ß√£o, esse metodo √© chamado automaticamente (esta escondido dentro da implementa√ß√£o de ActionListener)
 	public void actionPerformed(ActionEvent ae){
 		if(ae.getActionCommand().equals("preco")) {
 			this.graphBanco = gerarBancoBarraPreco(this.victoria);
 			try {
-				gerarGraphBarra3D(this.graphBanco,"Media de preÁos", "PreÁo CAD$");
+				gerarGraphBarra3D(this.graphBanco,"Media de pre√ßos", "Pre√ßo CAD$");
 				this.texto.setText("-- Gerado com sucesso --");
 			}catch(Exception exc) {
 				this.texto.setText("Erro" + exc);
@@ -115,15 +116,16 @@ public class ProgramaAir implements ActionListener{
 	}
 	
 	public static void main(String[] args) {
-		String linha;
-		String[] coluna;
+		String linha; //Cria uma referencia para a linha a ser lida.
+		String[] coluna; //Cria uma referencia para o array de strings que vai ser gerado pelo split.
 		Distrito victoria = new Distrito("victoria");
 		
+		//Tenta abrir o arquivo, caso n√£o consiga gera uma exception. ao final fecha automaticamente o arquivo(try-with-resources).
 		try(BufferedReader arquivo = new BufferedReader(new FileReader("./files/victoria.csv"))){
 			
 			linha = arquivo.readLine(); //Descarta a primeira linha
 			
-			//Carrega o Objeto Distrito com as informaÁıes
+			//Ler o arquivo e carrega o Objeto Distrito com as informa√ß√µes
 			do {
 				linha = arquivo.readLine();
 				if( linha != null) {
@@ -137,7 +139,8 @@ public class ProgramaAir implements ActionListener{
 		}catch(Exception exc) {
 			System.out.println("Error: " + exc);
 		}
-
+		
+		//Chama a biblioteca da interface grafica e a carrega.
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run() {
 				new ProgramaAir(victoria);
@@ -145,6 +148,7 @@ public class ProgramaAir implements ActionListener{
 		});
 	}
 	
+	//Gera o banco de dados Estabelecimento/Bairro para o grafico em bara
 	private DefaultCategoryDataset gerarBancoBarraEstab(Distrito victoria) {
 		int infoI;
 		String nomeBairro;
@@ -159,6 +163,7 @@ public class ProgramaAir implements ActionListener{
 		return graphBarra;
 	}
 	
+	//Gera o banco de dados Disponibilidade/Barrio para o grafico em barra
 	private DefaultCategoryDataset gerarBancoBarraDispo(Distrito victoria) {
 		double infoI;
 		String nomeBairro;
@@ -167,12 +172,13 @@ public class ProgramaAir implements ActionListener{
 		for(int i = 0; i < victoria.getSizeBairro(); i++){
 			nomeBairro = victoria.getBairroOfIndex(i).getNome();
 			infoI = victoria.getBairroOfIndex(i).getMediaDisponibilidade();
-			graphBarra.addValue(infoI,nomeBairro,"MÈdia Disponibilidade");
+			graphBarra.addValue(infoI,nomeBairro,"M√©dia Disponibilidade");
 		}
 		
 		return graphBarra;
 	}
 	
+	//Gera o banco de dados Preco/Bairro para o grafico em barra
 	private DefaultCategoryDataset gerarBancoBarraPreco(Distrito victoria) {
 		double infoD;
 		String nomeBairro;
@@ -181,12 +187,13 @@ public class ProgramaAir implements ActionListener{
 		for(int i = 0; i < victoria.getSizeBairro(); i++){
 			nomeBairro = victoria.getBairroOfIndex(i).getNome();
 			infoD = victoria.getBairroOfIndex(i).getMediaPreco();
-			graphBarra.addValue(infoD,nomeBairro,"Media PreÁos(CAD U$)");
+			graphBarra.addValue(infoD,nomeBairro,"Media Pre√ßos(CAD U$)");
 		}
 		
 		return graphBarra;
 	}
 	
+	//Gera a figura do grafico em barra
 	private void gerarGraphBarra3D(DefaultCategoryDataset graphBarraEstab, String categoria, String medida) throws IOException{
 		JFreeChart barChart = ChartFactory.createBarChart3D(
 		         categoria + " por bairro, Victoria - BC, Canada",             
@@ -203,19 +210,21 @@ public class ProgramaAir implements ActionListener{
 		ChartUtilities.saveChartAsJPEG(Chart2, barChart, width, height);
 	}
 	
+	//Posta no facebook.
 	@SuppressWarnings("deprecation")
 	private void postFacebook() throws Exception {
-		String accessToken = "XXXXXXXXX";
+		String accessToken = "XXXXXXXXX";//token de acesso pessoal
 		FacebookClient client = new DefaultFacebookClient(accessToken,Version.getVersionFromString("VERSION_2_10"));
 		ArrayList<TagBody> tag = new ArrayList<TagBody>();
-		tag.add(new TagBody("100001383083662","Pl·cido A. Souza Neto"));
+		tag.add(new TagBody("100001383083662","Pl√°cido A. Souza Neto")); //tag_id e nome
 		client.publish("me/photos", FacebookType.class, 
-								BinaryAttachment.with("barChart3D.jpeg", Chart),
+								BinaryAttachment.with("barChart3D.jpeg", Chart),//Anexa o grafico
 								Parameter.with("message","Desafio Complete de POO completo, criar um grafico e postar no facebook utilizando uma API"),
-								Parameter.with("tags",tag));
+								Parameter.with("tags",tag));// manda a mensagem e adiciona a tag criada.
 	}
 	
 	private void postTwitter() throws Exception{
+		// Cria um configurebuilder para definir as configura√ß√µes da conta a ser utilizada
 		ConfigurationBuilder cb = new ConfigurationBuilder();
 		cb.setDebugEnabled(true);
 		cb.setOAuthConsumerKey("XXXXXXXXXXXX");
@@ -223,6 +232,7 @@ public class ProgramaAir implements ActionListener{
 		cb.setOAuthAccessToken("XXXXXXXXXXXXXXXXX");
 		cb.setOAuthAccessTokenSecret("XXXXXXXXXXXXXXX");
 		
+		//Cria uma instancia da conta configurada e cria um objeto status para ser submetido.
 		TwitterFactory inter = new TwitterFactory(cb.build());
 		Twitter tt 	= inter.getInstance();
 		StatusUpdate status = new StatusUpdate("Desafio Complete de POO, criar um grafico e postar no twitter utilizando uma API");
