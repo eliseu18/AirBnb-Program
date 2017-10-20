@@ -94,6 +94,7 @@ public class Estabelecimento {
 		this.bairro = bairro;
 	}
 	
+	//Carrega a partir do array de strings os dados do estabelecimento
 	public void carregarEstabelecimento(String[] coluna, Bairro bairro, Anfitriao dono) {
 		this.setTipoQuarto(coluna[8]);
 		this.setPreco(Double.parseDouble(coluna[9]));
